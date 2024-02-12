@@ -1,17 +1,23 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from django.http import HttpResponse
+from django.views.generic.base import View
 from django.contrib.auth.decorators import login_required
 from .models import Profile, Post, LikePost, FollowersCount
 from itertools import  chain
 import random
 
+class PostDetail(View):
+    def get(self, request, pk):
+        post = Post.objects.get(id=pk)
+        return render(request, 'blog.html', {'post': post})
 
 @login_required(login_url='signin')
 def index(request):
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
+
+    post = Post.objects.all()
 
     user_following_list = []
     feed = []
@@ -34,26 +40,9 @@ def index(request):
     for user in user_following:
         user_list = User.objects.get(username=user.user)
         user_following_all.append(user_list)
-    
-    new_suggestions_list = [x for x in list(all_users) if (x not in list(user_following_all))]
-    current_user = User.objects.filter(username=request.user.username)
-    final_suggestions_list = [x for x in list(new_suggestions_list) if ( x not in list(current_user))]
-    random.shuffle(final_suggestions_list)
-
-    username_profile = []
-    username_profile_list = []
-
-    for users in final_suggestions_list:
-        username_profile.append(users.id)
-
-    for ids in username_profile:
-        profile_lists = Profile.objects.filter(id_user=ids)
-        username_profile_list.append(profile_lists)
-
-    suggestions_username_profile_list = list(chain(*username_profile_list))
 
 
-    return render(request, 'index.html', {'user_profile': user_profile, 'posts':feed_list, 'suggestions_username_profile_list': suggestions_username_profile_list[:4]})
+    return render(request, 'index.html', {'user_profile': user_profile, 'posts':post})
 
 @login_required(login_url='signin')
 def upload(request):
@@ -61,9 +50,11 @@ def upload(request):
     if request.method == 'POST':
         user = request.user.username
         image = request.FILES.get('image_upload')
+        title = request.POST['title']
+        preview = request.POST['preview']
         caption = request.POST['caption']
 
-        new_post = Post.objects.create(user=user, image=image, caption=caption)
+        new_post = Post.objects.create(user=user, image=image, title=title, preview=preview, caption=caption)
         new_post.save()
 
         return redirect('/')
