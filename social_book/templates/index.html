@@ -2,17 +2,31 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"  href="{% static 'main.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Home</title>
 </head>
-
 <body>
-
-            <header>
+    <aside>
+        <div class="logo">
+            <img class="logo_img" src="media/site_icon/Logo.svg">
+        </div>       
+        <ul>   
+            <a href=""><li>Главная</li></a>
+            <a href=""><li>Книги</li></a>
+            <a href=""><li>Статьи</li></a>
+            <a href=""><li>Помощь</li></a>
+        </ul>
+    </aside>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+            <!-- <header>
                 <div class="header_inner">
                     <form action="/search" method="POST">
                         {% csrf_token %}
@@ -25,9 +39,9 @@
                         {% csrf_token %}
                         <div>
                             <input type="file" name="image_upload">
-                            <textarea class="button soft-warning small" name="title" placeholder="title..."></textarea>
-                            <textarea class="button soft-warning small" name="preview" placeholder="preview..."></textarea>
-                            <textarea class="button soft-warning small" name="caption" placeholder="caption..."></textarea>
+                            <textarea  name="title" placeholder="title..."></textarea>
+                            <textarea  name="preview" placeholder="preview..."></textarea>
+                            <textarea  name="caption" placeholder="caption..."></textarea>
                             <br>
                             <button class="button bg-blue-700 " type="submit">Upload</button>
                         </div>
@@ -39,30 +53,37 @@
                             <li><a href="logout"> Log Out</a></li>
                         </ul>
                     </div>
-            </header>
-                {% for post in posts %}
-                <span> <a href="/profile/{{post.user}}">@{{post.user}}</a> </span>
-                <div>
-                    <a href="{{post.image.url}}">  
-                        <img width="600" height="500" src="{{post.image.url}}" alt="">
-                    </a>
+            </header> -->
+            
+            <div class="conteiner">
+                <div class="grid grid-cols-3 gap-4">
+                    {% for post in posts %}
+                    <div class="post_cart">
+                        <div> 
+                            <img class="img_article"  src="{{post.image.url}}" alt="">
+                        </div>
+                        <div class="interior_conteiner">
+                            <div class="personal_conteiner">
+                                <a href=""><img class="user_profile" src="{{user_profile.profileimg.url}}" alt=""></a>
+                                <a href="/profile/{{post.user}}">{{post.user}}</a>
+                            </div>
+                            <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+                                {% if post.no_of_likes == 0 %}
+                                <p>No likes</p>
+                                {% elif post.no_of_likes == 1 %}
+                                <p>Liked by {{post.no_of_likes}} persone</p>
+                                {% else %}
+                                <p>Liked by {{post.no_of_likes}} people</p>
+                                {% endif %}           
+                            </a>     
+                            <p>
+                                <a href="{{ post.id }}"> <strong>{{post.user}}</strong> {{post.caption}}</a>
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}      
                 </div>
-                <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
-                    {% if post.no_of_likes == 0 %}
-                    <p>No likes</p>
-                    {% elif post.no_of_likes == 1 %}
-                    <p>Liked by {{post.no_of_likes}} persone</p>
-                    {% else %}
-                    <p>Liked by {{post.no_of_likes}} people</p>
-                    {% endif %}           
-                </a>     
-                <p>
-                    <a href="{{ post.id }}"> <strong>{{post.user}}</strong> {{post.caption}}</a>
-                </p>
-        {% endfor %}
-
-    <script src="{% static '../../unpkg.com/ionicons%405.2.3/dist/ionicons.js' %}"></script>
+            </div>
+                            
 </body>
-
-
 </html>
