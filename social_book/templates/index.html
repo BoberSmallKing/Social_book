@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +26,7 @@
         {% block content %}
         {% endblock %}
     </main>
-            <!-- <header>
+            <header>
                 <div class="header_inner">
                     <form action="/search" method="POST">
                         {% csrf_token %}
@@ -53,7 +53,7 @@
                             <li><a href="logout"> Log Out</a></li>
                         </ul>
                     </div>
-            </header> -->
+            </header>
             
             <div class="conteiner">
                 <div class="grid grid-cols-3 gap-10">
@@ -65,20 +65,33 @@
                         <div class="interior_conteiner">
                             <div class="personal_conteiner">
                                 <a href=""><img class="user_profile" src="{{user_profile.profileimg.url}}" alt=""></a>
-                                <a href="/profile/{{post.user}}">{{post.user}}</a>
+                                <div class="personal_info">
+                                    <a href="/profile/{{post.user}}">{{post.user}}</a>
+                                    <br>
+                                    {% if user_subscriber_counts|get_item:post.user == 0 or user_subscriber_counts|get_item:post.user >= 5  %}
+                                        <a  class="followers" href="/profile/{{post.user}}">{{ user_subscriber_counts|get_item:post.user }} подписчиков</a>
+                                    {% elif user_subscriber_counts|get_item:post.user == 1 %}
+                                        <a class="followers" href="/profile/{{post.user}}">{{ user_subscriber_counts|get_item:post.user }} подписчик</a>
+                                    {% elif user_subscriber_counts|get_item:post.user == 2 or 3 or 4   %}
+                                        <a class="followers" href="/profile/{{post.user}}">{{ user_subscriber_counts|get_item:post.user }} подписчика</a>
+                                    {% endif %}
+                                    
+                                </div>
                             </div>
                             <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+                                <div class="info_conteiner">
+                                    <p class="post_title"><a href="{{ post.id }}">{{post.title|truncatechars:50}}</a></p>
+                                    <p class="post_preview"><a href="{{ post.id }}">{{post.preview|truncatechars:90}}</a></p>
+                                </div>
+                                <p class="post_created_at">{{ post.created_at|date }}</p>
                                 {% if post.no_of_likes == 0 %}
-                                <p>No likes</p>
+                                    <p>No likes</p>
                                 {% elif post.no_of_likes == 1 %}
-                                <p>Liked by {{post.no_of_likes}} persone</p>
+                                    <p>Liked by {{post.no_of_likes}} person</p>
                                 {% else %}
-                                <p>Liked by {{post.no_of_likes}} people</p>
+                                    <p>Liked by {{post.no_of_likes}} people</p>
                                 {% endif %}           
-                            </a>     
-                            <p>
-                                <a href="{{ post.id }}"> <strong>{{post.user}}</strong> {{post.caption}}</a>
-                            </p>
+                            </a>    
                         </div>
                     </div>
                     {% endfor %}      

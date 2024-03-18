@@ -2,6 +2,7 @@ body {
     background: #ffffff;
     font-family: 'Roboto', sans-serif;
     margin: 0;
+    font-weight: 400;
 }
 
 aside {
@@ -74,7 +75,7 @@ main .features p {
 
 .post_cart{
     width: 403px;
-    height: 400px;
+    height: 450px;
     border-radius: 32px;
     border: 1px solid #C9C9C9;
     background-color: #fff;
@@ -92,12 +93,44 @@ main .features p {
 }
 
 .user_profile{
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
 }
 
 .personal_conteiner{
     display: flex;
     align-items: center;
+}
+
+.personal_info{
+    padding-left: 10px;
+    font-size: 14px;
+}
+
+.post_title{
+    font-size: 18px;
+}
+
+.post_preview{
+    font-size: 16px;
+    color: #8B8B8B;
+}
+
+header{
+    padding-left: 400px;
+}
+
+.followers{ 
+    color: #8B8B8B;
+}
+
+.info_conteiner{
+    margin-top: 8px;
+}
+
+.post_created_at{
+    font-size: 15px;
+    color: #C9C9C9;
+    margin-bottom: 8px;
 }

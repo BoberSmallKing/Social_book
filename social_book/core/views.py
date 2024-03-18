@@ -7,6 +7,9 @@ from .models import Profile, Post, LikePost, FollowersCount
 from itertools import  chain
 import random
 
+
+
+
 class PostDetail(View):
     def get(self, request, pk):
         post = Post.objects.get(id=pk)
@@ -16,33 +19,16 @@ class PostDetail(View):
 def index(request):
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
-
     post = Post.objects.all()
+    current_user = request.user
+    user_profiles = Profile.objects.all()
+    user_subscriber_counts = {}
 
-    user_following_list = []
-    feed = []
+    for profile in user_profiles:
+        user_followers = FollowersCount.objects.filter(user=profile.user).count()
+        user_subscriber_counts[profile.user.username] = user_followers
 
-    user_following = FollowersCount.objects.filter(follower=request.user.username)
-
-    for users in user_following:
-        user_following_list.append(users.user)
-
-    for usernames in user_following_list:
-        feed_lists = Post.objects.filter(user=usernames)
-        feed.append(feed_lists)
-
-    feed_list = list(chain(*feed))
-
-    # user suggestion starts
-    all_users = User.objects.all()
-    user_following_all = []
-
-    for user in user_following:
-        user_list = User.objects.get(username=user.user)
-        user_following_all.append(user_list)
-
-
-    return render(request, 'index.html', {'user_profile': user_profile, 'posts':post})
+    return render(request, 'index.html', {'user_profile': user_profile, 'posts':post, 'user_subscriber_counts': user_subscriber_counts, 'current_user': current_user})
 
 @login_required(login_url='signin')
 def upload(request):
@@ -123,8 +109,10 @@ def profile(request, pk):
     else:
          button_text = 'Follow'
 
+
     user_followers = len(FollowersCount.objects.filter(user=pk))
     user_following = len(FollowersCount.objects.filter(follower=pk))
+    request.session['user_followers'] = user_followers
 
 
     context = {
