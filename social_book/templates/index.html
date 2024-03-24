@@ -78,12 +78,14 @@
                                     
                                 </div>
                             </div>
-                            <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+                            
                                 <div class="info_conteiner">
                                     <p class="post_title"><a href="{{ post.id }}">{{post.title|truncatechars:50}}</a></p>
                                     <p class="post_preview"><a href="{{ post.id }}">{{post.preview|truncatechars:90}}</a></p>
                                 </div>
                                 <p class="post_created_at">{{ post.created_at|date }}</p>
+
+                                <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
                                 {% if post.no_of_likes == 0 %}
                                     <p>No likes</p>
                                 {% elif post.no_of_likes == 1 %}
