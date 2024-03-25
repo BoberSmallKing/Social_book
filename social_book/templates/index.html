@@ -8,6 +8,14 @@
     <link rel="stylesheet"  href="{% static 'main.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'blog/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'blog/css/icofont/icofont/icofont.min.css' %}" />
+    
+    <!-- jQuery library -->
+    <script src="{% static "blog/js/jquery-3.4.1.min.js " %}"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="{% static "blog/js/bootstrap.min.js " %}"></script>
     <title>Home</title>
 </head>
 <body>
@@ -85,20 +93,48 @@
                                 </div>
                                 <p class="post_created_at">{{ post.created_at|date }}</p>
 
-                                <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
-                                {% if post.no_of_likes == 0 %}
-                                    <p>No likes</p>
-                                {% elif post.no_of_likes == 1 %}
-                                    <p>Liked by {{post.no_of_likes}} person</p>
-                                {% else %}
-                                    <p>Liked by {{post.no_of_likes}} people</p>
-                                {% endif %}           
-                            </a>    
+                                <div class="bg-light py-2 px-3 ml-2 mb-1" style="display: inline-block; border-radius: 20px;">
+                                    <button type="button" id="{{ post.pk }}" data-url="{% url 'post_like' %}"
+                                        class="btn border-0 likebtn m-0 p-0">
+                                        <i id="icons" class="icofont icofont-thumbs-up icofont-2x"></i>
+                                    </button>
+                                    <span id="like_count{{post.pk}}" class="like_count mt-3 pl-2">{{post.total_likes}}</span>             
+                                </div>   
                         </div>
                     </div>
                     {% endfor %}      
                 </div>
             </div>
-                            
+               
+            <script>
+                $(document).ready(function () {
+                    $(".likebtn").click(function (event) {
+                        event.preventDefault()
+                        var ansid = $(this).attr('id');
+                        console.log(ansid)
+                        $.ajax({
+                            url: $(this).data('url'),
+                            type: 'POST',
+                            data: {
+                                'post_id': ansid,
+                                'csrfmiddlewaretoken': "{{ csrf_token }}",
+                                'action': 'post'
+                            },
+                            success: function (response) {
+                                $('#like_count' + ansid).text(response['total_likes']);
+                                console.log(response)
+                                if (response['flag']) {
+                                    $('#' + ansid).addClass('text-primary');
+                                } else {
+                                    $('#' + ansid).removeClass('text-primary');
+                                }
+                            },
+                            error: function (rs, e) {
+                                console.log(rs.response)
+                            }
+                        });
+                    });
+                });
+            </script>
 </body>
 </html>

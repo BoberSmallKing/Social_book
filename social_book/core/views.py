@@ -1,13 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.views.generic.base import View
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Post, LikePost, FollowersCount
-from itertools import  chain
-import random
-
-
+from .models import Profile, Post, FollowersCount
+from itertools import chain
+from django.http import JsonResponse, HttpResponse
 
 
 class PostDetail(View):
@@ -70,29 +68,25 @@ def search(request):
     return render(request, 'search.html', {'user_profile': user_profile, 'username_profile_list': username_profile_list})
 
 @login_required(login_url='signin')
-def like_post(request):
-    username = request.user.username
-    post_id = request.GET.get('post_id')
+def post_like(request):
+    # if request.method == 'POST' and request.is_ajax():
+    if request.POST.get('action') == 'post': 
+        flag = None
+        postid = int(request.POST.get('post_id'))
+        post_obj = get_object_or_404(Post, id=postid)
 
-    post = Post.objects.get(id=post_id)
+        if post_obj.likes.filter(id=request.user.id).exists():
+            post_obj.likes.remove(request.user)
+            post_obj.save()
+            flag = False
+        else:
+            post_obj.likes.add(request.user)
+            post_obj.save()
+            flag = True
+        
+        return JsonResponse({'total_likes': post_obj.total_likes, 'flag': flag,})
+    return HttpResponse("Error access denied")
 
-    like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
-
-    if like_filter == None:
-        new_like = LikePost.objects.create(post_id=post_id, username=username)
-        new_like.save()
-        post.no_of_likes = post.no_of_likes+1
-        post.save()
-        return redirect('/')
-    if post.no_of_likes == 0:
-        post.no_of_likes = post.no_of_likes+1
-        post.save()
-        return redirect('/')
-    else:
-        like_filter.delete()
-        post.no_of_likes = post.no_of_likes-1
-        post.save()
-        return redirect('/')
 
 @login_required(login_url='signin')
 def profile(request, pk):
@@ -209,7 +203,7 @@ def signup(request):
 
     else:
         return render(request, 'signup.html')
-    
+
 def signin(request):
 
     if request.method == 'POST':
